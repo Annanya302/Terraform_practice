@@ -51,11 +51,7 @@ variable "allowed_ip" {
   type        = string
 }
 
-#Iam role name
-variable "terraform_role_arn" {
-  description = "ARN of the IAM role used by Terraform"
-  type        = string
-}
+
 
 
 

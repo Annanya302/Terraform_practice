@@ -18,6 +18,7 @@ tfplan
 *.tfvars
 *terraform.tfvars.dev
 *terraform.tfvars.prod
+*iam.tfvars
 
 # Keep example variable files
 !*.tfvars.example
@@ -25,3 +26,6 @@ tfplan
 # Crash logs
 crash.log
 crash.*.log
+
+#provider specific files
+*provider.tfvars
