@@ -27,16 +27,17 @@ locals {
 
 #vpc module
 module "vpc" {
-  #use local vpc module to create vpc,subnet,igw and route table.
+
   source = "./modules/vpc"
 
-  #send vpc cidr into module
   vpc_cidr = var.vpc_cidr
 
-  #dynamically use the first available AZ from the data source.
-  availability_zone = data.aws_availability_zones.availableAZ.names[0]
+  availability_zones = data.aws_availability_zones.availableAZ.names
 
-  #send project/environment name into module to use in resource tags.
+
+  subnet_count = var.instance_count
+
+
   name = local.resource_name
 }
 
@@ -75,7 +76,7 @@ resource "aws_instance" "webEc2" {
   count                  = var.instance_count
   ami                    = data.aws_ssm_parameter.ami.value
   instance_type          = var.instance_type
-  subnet_id              = module.vpc.aws_subnet_id
+  subnet_id              = module.vpc.subnet_ids[count.index]
   vpc_security_group_ids = [aws_security_group.webSG.id]
   tags = {
     Name        = "${local.resource_name}-ec2-${count.index + 1}"

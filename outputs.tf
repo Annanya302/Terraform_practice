@@ -14,18 +14,19 @@ output "region" {
 }
 
 #availability_zone
-output "availability_zone" {
+output "availability_zones" {
   value = data.aws_availability_zones.availableAZ.names[0]
 }
 
 #vpc id
 output "vpc_id" {
-  value = module.vpc.vpc_id
+  description = "ID of the VPC"
+  value       = module.vpc.vpc_id
 }
-
 #subnet id
-output "subnet_id" {
-  value = module.vpc.aws_subnet_id
+output "subnet_ids" {
+  description = "IDs of all public subnets"
+  value       = module.vpc.subnet_ids
 }
 
 #security group id
