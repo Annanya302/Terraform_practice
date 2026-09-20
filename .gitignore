@@ -28,4 +28,4 @@ crash.log
 crash.*.log
 
 #provider specific files
-*provider.tfvars
+*provider.tf
