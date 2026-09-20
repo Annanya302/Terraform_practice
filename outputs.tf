@@ -14,8 +14,9 @@ output "region" {
 }
 
 #availability_zone
-output "availability_zones" {
-  value = data.aws_availability_zones.availableAZ.names[0]
+output "az" {
+  description = "Availability zones used by the VPC"
+  value       = module.vpc.az
 }
 
 #vpc id
@@ -32,6 +33,11 @@ output "subnet_ids" {
 #security group id
 output "security_group_id" {
   value = aws_security_group.webSG.id
+}
+
+#inbound port
+output "inbound_port" {
+  value = var.inbound_port
 }
 
 #ec2 instance

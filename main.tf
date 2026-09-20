@@ -5,59 +5,36 @@ data "aws_availability_zones" "availableAZ" {
 
 #data source 2: ami
 data "aws_ssm_parameter" "ami" {
-  # AWS Systems Manager provides the latest Amazon Linux 2023 AMI.
-  # This avoids hardcoding an AMI ID.
   name = "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
-
 }
-
-#data source 4: current region
 data "aws_region" "current_reg" {
-  # Gets the region configured in the AWS provider.
 }
 
 #local values
 locals {
-  # Workspace gives us the current Terraform environment
-  workspace_environment = terraform.workspace
-
-  # Create a common resource name.
-  resource_name = var.project_name
+  resource_name = "${var.project_name}-${var.environment}"
 }
 
 #vpc module
 module "vpc" {
-
-  source = "./modules/vpc"
-
-  vpc_cidr = var.vpc_cidr
-
-  availability_zones = data.aws_availability_zones.availableAZ.names
-
-
+  source       = "./modules/vpc"
+  vpc_cidr     = var.vpc_cidr
+  az           = data.aws_availability_zones.availableAZ.names
+  name         = local.resource_name
   subnet_count = var.instance_count
-
-
-  name = local.resource_name
 }
-
 
 #security group
 resource "aws_security_group" "webSG" {
-  #create sg inside the vpc created by our module
   vpc_id      = module.vpc.vpc_id
   description = "Allow inbound HTTP "
-
-  # Allow HTTP traffic from the configured IP/CIDR
   ingress {
-    description = "HTTP from anywhere"
-    from_port   = 80
-    to_port     = 80
+    description = "CIDR block allowed to access HTTP on the EC2 instance"
+    from_port   = var.inbound_port
+    to_port     = var.inbound_port
     protocol    = "tcp"
     cidr_blocks = [var.allowed_ip]
   }
-
-  #allow outbound traffic
   egress {
     from_port   = 0
     to_port     = 0
@@ -69,7 +46,6 @@ resource "aws_security_group" "webSG" {
     Environment = var.environment
   }
 }
-
 
 #ec2 instance
 resource "aws_instance" "webEc2" {
@@ -85,10 +61,12 @@ resource "aws_instance" "webEc2" {
   }
 }
 
+resource "random_id" "bucket_suffix" {
+  byte_length = 4
+}
 
 #s3
 resource "aws_s3_bucket" "main" {
-  # S3 bucket names must be globally unique.
   bucket = "${local.resource_name}-bucket-${random_id.bucket_suffix.hex}"
   tags = {
     Name        = "${local.resource_name}-bucket"
@@ -96,10 +74,6 @@ resource "aws_s3_bucket" "main" {
     project     = var.project_name
 
   }
-}
-
-resource "random_id" "bucket_suffix" {
-  byte_length = 4
 }
 
 #s3 versioning

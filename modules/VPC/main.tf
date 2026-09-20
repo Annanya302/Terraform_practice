@@ -23,8 +23,8 @@ resource "aws_internet_gateway" "main" {
 resource "aws_subnet" "public" {
   count                   = var.subnet_count
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.${count.index + 1}.0/24"
-  availability_zone       = var.availability_zones[count.index]
+  cidr_block              = cidrsubnet(var.vpc_cidr, 8, count.index)
+  availability_zone       = var.az[count.index]
   map_public_ip_on_launch = true
   tags = {
     Name        = "${var.name}-subnet-${count.index + 1}"

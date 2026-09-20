@@ -8,7 +8,7 @@ variable "name" {
 }
 
 # Availability Zone supplied by the root configuration.
-variable "availability_zones" {
+variable "az" {
   type = list(string)
 }
 
@@ -17,3 +17,5 @@ variable "subnet_count" {
   description = "Number of subnets to create"
   type        = number
 }
+
+
